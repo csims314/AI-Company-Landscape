@@ -7,8 +7,8 @@ TAB      := Claude Research
 RANGE    := $(TAB)
 HTML     := ai-landscape.html
 
-# Column letters: A=company B=category C=category_color D=category_icon
-#                 E=overall_revenue_B F=pure_ai_revenue_B G=pure_play H=note
+# Column letters: A=category B=category_color C=category_icon D=company
+#                 E=overall_revenue_B F=pure_ai_revenue_B G=pure_play H=note I=url
 
 .PHONY: help check-auth list list-table list-csv count categories \
         find find-row add update update-revenue update-row delete bulk-add sync-fallback

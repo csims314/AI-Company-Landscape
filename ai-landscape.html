@@ -37,7 +37,7 @@
   #chart { width: 100%; display: flex; justify-content: center; }
 
   .tooltip-box {
-    position: fixed; pointer-events: none; background: #1a2238ee; border: 1px solid #2d3a54;
+    position: fixed; pointer-events: auto; background: #1a2238ee; border: 1px solid #2d3a54;
     border-radius: 12px; padding: 14px 18px; font-size: 0.82rem; z-index: 1000;
     box-shadow: 0 12px 40px rgba(0,0,0,0.6); max-width: 290px; opacity: 0; transition: opacity 0.15s;
     line-height: 1.5; backdrop-filter: blur(8px);
@@ -54,6 +54,8 @@
   .tooltip-box .tt-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
   .tooltip-box .tt-note { font-size: 0.72rem; color: #6b7a94; margin-top: 4px; font-style: italic; }
   .tooltip-box .tt-pureplay { display: inline-block; font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; background: #1a3a28; color: #6ee7b7; margin-bottom: 6px; }
+  .tooltip-box .tt-link { display: inline-block; font-size: 0.68rem; color: #60a5fa; text-decoration: none; margin-top: 6px; }
+  .tooltip-box .tt-link:hover { text-decoration: underline; }
 
   .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 8px 24px 24px; margin-bottom: 8px; }
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: #8892a8; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
@@ -156,7 +158,8 @@ function csvToHierarchy(csvText) {
       value: parseFloat(row.overall_revenue_B) || 0,
       ai: parseFloat(row.pure_ai_revenue_B) || 0,
       purePlay: row.pure_play === "TRUE" || row.pure_play === "true",
-      note: row.note || ""
+      note: row.note || "",
+      url: row.url || ""
     });
   });
 
@@ -419,7 +422,7 @@ function rebuildChart() {
     .on("mouseout", function(e, d) {
       if (touchActive) return;
       d3.select(this).attr("fill-opacity", nodeOpacity(d)).attr("stroke-width", d.depth === 1 ? 2 : 0.7);
-      hideTooltip();
+      delayHideTooltip();
     })
     .on("touchstart", function(e, d) {
       touchActive = true;
@@ -744,6 +747,9 @@ function showTooltip(event, d) {
 
   if (d.data.note) h += `<div class="tt-note">${d.data.note}</div>`;
 
+  const url = isLeaf ? d.data.url : null;
+  if (url) h += `<a class="tt-link" href="${url}" target="_blank" rel="noopener">Visit website ↗</a>`;
+
   tooltip.innerHTML = h;
   tooltip.classList.add("visible");
   moveTooltip(event);
@@ -770,7 +776,14 @@ function moveTooltip(event) {
   }
 }
 
-function hideTooltip() { tooltip.classList.remove("visible"); }
+function hideTooltip() { clearTimeout(hideTooltipTimer); tooltip.classList.remove("visible"); }
+let hideTooltipTimer = null;
+function delayHideTooltip() {
+  clearTimeout(hideTooltipTimer);
+  hideTooltipTimer = setTimeout(() => { tooltip.classList.remove("visible"); }, 300);
+}
+tooltip.addEventListener("mouseenter", () => clearTimeout(hideTooltipTimer));
+tooltip.addEventListener("mouseleave", () => { tooltip.classList.remove("visible"); });
 
 // ── INIT: Fetch data from Google Sheets, fall back to embedded data ──
 function loadData(source, label) {

@@ -54,12 +54,15 @@ for row in reader:
     pure_play = row.get('pure_play', '').strip().upper() == 'TRUE'
     note = row.get('note', '') or ''
 
+    url = row.get('url', '') or ''
+
     category_map[cat]['children'].append({
         'name': row['company'],
         'value': overall,
         'ai': ai,
         'purePlay': pure_play,
-        'note': note
+        'note': note,
+        'url': url
     })
 
 tree = {'name': 'AI Landscape', 'children': list(category_map.values())}
