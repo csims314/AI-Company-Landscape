@@ -380,6 +380,14 @@ function rebuildChart() {
   if (loaderRAF) { cancelAnimationFrame(loaderRAF); loaderRAF = null; }
   svg.selectAll("*").remove();
 
+  // Re-create glow filter (loader's defs were removed above)
+  const defs = svg.append("defs");
+  const glow = defs.append("filter").attr("id", "lg").attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
+  glow.append("feGaussianBlur").attr("stdDeviation", "4").attr("result", "blur");
+  const merge = glow.append("feMerge");
+  merge.append("feMergeNode").attr("in", "blur");
+  merge.append("feMergeNode").attr("in", "SourceGraphic");
+
   const pack = d3.pack().size([width, height]).padding(d => d.depth === 0 ? 18 : 5);
   root = d3.hierarchy(data)
     .sum(d => {
