@@ -266,7 +266,7 @@ function showLoader(msg) {
 
   const defs = svg.append("defs");
   const glow = defs.append("filter").attr("id", "lg");
-  glow.append("feGaussianBlur").attr("stdDeviation", "4").attr("result", "b");
+  glow.append("feGaussianBlur").attr("stdDeviation", "2").attr("result", "b");
   glow.append("feMerge").selectAll("feMergeNode").data(["b","SourceGraphic"]).join("feMergeNode").attr("in",d=>d);
   const grad = defs.append("linearGradient").attr("id","lrg").attr("x1","0%").attr("y1","0%").attr("x2","100%").attr("y2","100%");
   grad.append("stop").attr("offset","0%").attr("stop-color","#60a5fa");
@@ -383,7 +383,7 @@ function rebuildChart() {
   // Re-create glow filter (loader's defs were removed above)
   const defs = svg.append("defs");
   const glow = defs.append("filter").attr("id", "lg").attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
-  glow.append("feGaussianBlur").attr("stdDeviation", "4").attr("result", "blur");
+  glow.append("feGaussianBlur").attr("stdDeviation", "2").attr("result", "blur");
   const merge = glow.append("feMerge");
   merge.append("feMergeNode").attr("in", "blur");
   merge.append("feMergeNode").attr("in", "SourceGraphic");
