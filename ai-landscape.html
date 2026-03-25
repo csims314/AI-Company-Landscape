@@ -232,13 +232,34 @@ function dismissZoomHint() {
   hint.classList.add("fade-out");
 }
 
-// Dismiss tooltip on tap-away (mobile)
+// Dismiss tooltip on tap-away (mobile); double-tap gaps inside category to zoom
+let lastBgTap = null;
 document.addEventListener("touchstart", (e) => {
   if (!tooltip.contains(e.target) && !e.target.closest("circle")) {
     hideTooltip();
     lastTapped = null;
-    // Reset any highlighted bubble
     if (nodeG) nodeG.attr("fill-opacity", d => nodeOpacity(d)).attr("stroke-width", d => d.depth === 1 ? 2 : 0.7);
+    // Detect double-tap on SVG background inside a category circle
+    if (focus === root && root && e.target.closest("svg")) {
+      const touch = e.touches[0];
+      const svgEl = svg.node();
+      const rect = svgEl.getBoundingClientRect();
+      const mx = touch.clientX - rect.left;
+      const my = touch.clientY - rect.top;
+      const k = getK();
+      let hitCat = null;
+      for (const cat of root.children) {
+        const cx = (cat.x - view[0]) * k + width / 2;
+        const cy = (cat.y - view[1]) * k + height / 2;
+        const r = cat.r * k;
+        if (Math.hypot(mx - cx, my - cy) <= r) { hitCat = cat; break; }
+      }
+      if (hitCat) {
+        if (lastBgTap === hitCat) { zoomTo(hitCat); lastBgTap = null; return; }
+        lastBgTap = hitCat;
+        setTimeout(() => { if (lastBgTap === hitCat) lastBgTap = null; }, 400);
+      } else { lastBgTap = null; }
+    }
   }
 }, {passive: true});
 
@@ -463,7 +484,20 @@ function rebuildChart() {
     .style("fill", "#fff").style("font-family", "'Segoe UI', system-ui, sans-serif")
     .style("font-weight", "700");
 
-  svg.on("click", () => zoomTo(root));
+  svg.on("click", function(e) {
+    // Find if click landed inside a category circle
+    if (focus === root) {
+      const [mx, my] = d3.pointer(e, svg.node());
+      const k = getK();
+      for (const cat of root.children) {
+        const cx = (cat.x - view[0]) * k + width / 2;
+        const cy = (cat.y - view[1]) * k + height / 2;
+        const r = cat.r * k;
+        if (Math.hypot(mx - cx, my - cy) <= r) { zoomTo(cat); return; }
+      }
+    }
+    zoomTo(root);
+  });
 
   applyPositions(false);
   sizeCatTags();
