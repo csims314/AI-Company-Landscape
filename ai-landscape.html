@@ -61,6 +61,17 @@
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
   .breadcrumb { text-align: center; padding: 2px 6px; font-size: 0.78rem; color: #6b7a94; min-height: 0; }
+
+  .zoom-hint {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a2238dd; border: 1px solid #2d3a54; border-radius: 20px;
+    padding: 8px 18px; font-size: 0.75rem; color: #8892a8;
+    backdrop-filter: blur(8px); z-index: 900; pointer-events: none;
+    opacity: 0; transition: opacity 0.5s;
+    white-space: nowrap; letter-spacing: 0.02em;
+  }
+  .zoom-hint.visible { opacity: 1; }
+  .zoom-hint.fade-out { opacity: 0; }
   .breadcrumb span { cursor: pointer; color: #60a5fa; }
   .breadcrumb span:hover { text-decoration: underline; }
 
@@ -111,6 +122,7 @@
 <div id="total-revenue" style="text-align:center;padding:2px 0 0;font-size:0.78rem;color:#a78bfa;font-weight:600;letter-spacing:0.02em;"></div>
 <div class="legend" id="legend"></div>
 <div class="tooltip-box" id="tooltip"></div>
+<div class="zoom-hint" id="zoom-hint">Double-tap a category to zoom in</div>
 
 <script>
 // ── DATA SOURCE: Google Sheets (published CSV) ──
@@ -200,6 +212,22 @@ const breadcrumb = document.getElementById("breadcrumb");
 const modeDesc = document.getElementById("mode-desc");
 let touchActive = false;
 let lastTapped = null;
+let zoomHintShown = false;
+
+function showZoomHint() {
+  if (zoomHintShown) return;
+  const hint = document.getElementById("zoom-hint");
+  if (window.innerWidth >= 600) hint.textContent = "Click a category to zoom in";
+  setTimeout(() => hint.classList.add("visible"), 1200);
+  setTimeout(() => { if (!zoomHintShown) dismissZoomHint(); }, 6000);
+}
+function dismissZoomHint() {
+  if (zoomHintShown) return;
+  zoomHintShown = true;
+  const hint = document.getElementById("zoom-hint");
+  hint.classList.remove("visible");
+  hint.classList.add("fade-out");
+}
 
 // Dismiss tooltip on tap-away (mobile)
 document.addEventListener("touchstart", (e) => {
@@ -371,8 +399,9 @@ function rebuildChart() {
     .attr("fill", d => nodeColor(d))
     .attr("fill-opacity", d => nodeOpacity(d))
     .attr("stroke", d => nodeColor(d))
-    .attr("stroke-width", d => d.depth === 1 ? 2 : 0.7)
-    .attr("stroke-opacity", d => d.depth === 1 ? 0.6 : 0.35)
+    .attr("stroke-width", d => d.depth === 1 ? 2 : (d.depth === 2 && d.data.name === "Capacity.ai" ? 3 : 0.7))
+    .attr("stroke-opacity", d => d.depth === 1 ? 0.6 : (d.depth === 2 && d.data.name === "Capacity.ai" ? 1 : 0.35))
+    .attr("filter", d => d.depth === 2 && d.data.name === "Capacity.ai" ? "url(#lg)" : null)
     .on("mouseover", function(e, d) {
       if (touchActive) return;
       d3.select(this).attr("fill-opacity", d.depth === 1 ? 0.28 : 0.8).attr("stroke-width", 2.5);
@@ -433,10 +462,14 @@ function rebuildChart() {
 
 function nodeColor(d) {
   if (d.depth === 0) return "#111827";
+  if (d.depth === 2 && d.data.name === "Capacity.ai") return "#ff6a00";
   let p = d; while (p.depth > 1) p = p.parent;
   return colorMap[p.data.name] || "#666";
 }
-function nodeOpacity(d) { return d.depth === 1 ? 0.13 : 0.5; }
+function nodeOpacity(d) {
+  if (d.depth === 2 && d.data.name === "Capacity.ai") return 1;
+  return d.depth === 1 ? 0.13 : 0.5;
+}
 
 // ── POSITIONING ──
 function getK() { return Math.min(width, height) / view[2]; }
@@ -472,6 +505,7 @@ function positionCatTags() {
 }
 
 function zoomTo(d) {
+  dismissZoomHint();
   focus = d;
   view = [d.x, d.y, d.r * 2];
   // Fade out category tags quickly
@@ -739,6 +773,7 @@ function loadData(source, label) {
   rebuildChart();
   const infoEl = document.getElementById("data-source-info");
   infoEl.textContent = label.includes("Live") ? "📊 View raw data" : "📊 Data (fallback)";
+  showZoomHint();
 }
 
 function init(sheetName) {
