@@ -222,7 +222,6 @@ function showZoomHint() {
   const hint = document.getElementById("zoom-hint");
   if (window.innerWidth >= 600) hint.textContent = "Click a category to zoom in";
   setTimeout(() => hint.classList.add("visible"), 1200);
-  setTimeout(() => { if (!zoomHintShown) dismissZoomHint(); }, 6000);
 }
 function dismissZoomHint() {
   if (zoomHintShown) return;
