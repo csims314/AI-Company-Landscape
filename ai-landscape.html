@@ -55,10 +55,10 @@
   .tooltip-box .tt-note { font-size: 0.72rem; color: #6b7a94; margin-top: 4px; font-style: italic; }
   .tooltip-box .tt-pureplay { display: inline-block; font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; background: #1a3a28; color: #6ee7b7; margin-bottom: 6px; }
 
-  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 12px; padding: 4px 20px 10px; }
-  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: #8892a8; cursor: pointer; transition: opacity 0.2s; }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 8px 24px 16px; margin-bottom: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: #8892a8; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
   .legend-item:hover { opacity: 0.7; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
   .breadcrumb { text-align: center; padding: 2px 6px; font-size: 0.78rem; color: #6b7a94; min-height: 0; }
 
@@ -87,8 +87,8 @@
     .toggle-track.on .toggle-knob { left: 15px; }
     .breadcrumb { font-size: 0.7rem; padding: 1px 4px; }
     #chart svg { touch-action: manipulation; }
-    .legend { gap: 4px 8px; padding: 3px 10px 8px; max-height: 72px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    .legend-item { gap: 3px; font-size: 0.58rem; min-height: 24px; }
+    .legend { gap: 4px 10px; padding: 6px 12px 12px; max-height: 96px; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-bottom: 2px; }
+    .legend-item { gap: 4px; font-size: 0.6rem; min-height: 22px; }
     .legend-dot { width: 6px; height: 6px; }
     #total-revenue { font-size: 0.68rem !important; padding: 1px 8px 0 !important; }
     #total-revenue span { font-size: 0.82rem !important; }
@@ -98,7 +98,7 @@
   @media (max-width: 380px) {
     .header h1 { font-size: 0.82rem; }
     .header-right { display: none; }
-    .legend { max-height: 60px; }
+    .legend { max-height: 80px; }
   }
 </style>
 </head>
