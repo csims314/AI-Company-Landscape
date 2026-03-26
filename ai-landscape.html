@@ -37,12 +37,12 @@
   #chart { width: 100%; display: flex; justify-content: center; }
 
   .tooltip-box {
-    position: fixed; pointer-events: auto; background: #1a2238ee; border: 1px solid #2d3a54;
+    position: fixed; pointer-events: none; background: #1a2238ee; border: 1px solid #2d3a54;
     border-radius: 12px; padding: 14px 18px; font-size: 0.82rem; z-index: 1000;
     box-shadow: 0 12px 40px rgba(0,0,0,0.6); max-width: 290px; opacity: 0; transition: opacity 0.15s;
     line-height: 1.5; backdrop-filter: blur(8px);
   }
-  .tooltip-box.visible { opacity: 1; }
+  .tooltip-box.visible { opacity: 1; pointer-events: auto; }
   .tooltip-box .tt-name { font-weight: 700; font-size: 0.95rem; color: #fff; margin-bottom: 4px; }
   .tooltip-box .tt-cat { font-size: 0.75rem; color: #8892a8; margin-bottom: 8px; }
   .tooltip-box .tt-rev-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
@@ -783,6 +783,7 @@ function showTooltip(event, d) {
   const url = isLeaf ? d.data.url : null;
   if (url) h += `<a class="tt-link" href="${url}" target="_blank" rel="noopener">Visit website ↗</a>`;
 
+  clearTimeout(hideTooltipTimer);
   tooltip.innerHTML = h;
   tooltip.classList.add("visible");
   moveTooltip(event);
