@@ -442,6 +442,7 @@ function rebuildChart() {
     .on("mouseout", function(e, d) {
       if (touchActive) return;
       d3.select(this).attr("fill-opacity", nodeOpacity(d)).attr("stroke-width", d.depth === 1 ? 2 : 0.7);
+      if (e.relatedTarget && (e.relatedTarget === tooltip || tooltip.contains(e.relatedTarget))) return;
       delayHideTooltip();
     })
     .on("touchstart", function(e, d) {
@@ -817,7 +818,7 @@ function delayHideTooltip() {
   hideTooltipTimer = setTimeout(() => { tooltip.classList.remove("visible"); }, 300);
 }
 tooltip.addEventListener("mouseenter", () => clearTimeout(hideTooltipTimer));
-tooltip.addEventListener("mouseleave", () => { tooltip.classList.remove("visible"); });
+tooltip.addEventListener("mouseleave", () => { delayHideTooltip(); });
 
 // ── INIT: Fetch data from Google Sheets, fall back to embedded data ──
 function loadData(source, label) {
